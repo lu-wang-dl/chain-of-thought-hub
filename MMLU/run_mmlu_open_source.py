@@ -142,8 +142,12 @@ def load(ckpt_dir, model_type):
         # mpt-30b's tokenizer only has the fast version
         use_fast = "mosaicml/mpt-30b" in ckpt_dir
         # however, tensor parallel for running falcon will occur bugs
-        tokenizer = AutoTokenizer.from_pretrained(ckpt_dir, use_fast=use_fast, padding_side="left")
-        model = AutoModelForCausalLM.from_pretrained(ckpt_dir, device_map = 'balanced_low_0', torch_dtype=torch.bfloat16, trust_remote_code=True)
+        if "mosaicml/mpt-7b" in ckpt_dir:
+          tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b", padding_side="left")
+          model = AutoModelForCausalLM.from_pretrained(ckpt_dir, torch_dtype=torch.bfloat16, trust_remote_code=True).to('cuda')
+        else:
+          tokenizer = AutoTokenizer.from_pretrained(ckpt_dir, use_fast=True, padding_side="left")
+          model = AutoModelForCausalLM.from_pretrained(ckpt_dir, device_map = 'balanced_low_0', torch_dtype=torch.bfloat16, trust_remote_code=True)
         if tokenizer.pad_token_id is None:
             if tokenizer.eos_token_id is not None:
                 tokenizer.pad_token_id = tokenizer.eos_token_id
