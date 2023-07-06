@@ -128,7 +128,7 @@ def prepare_input(tokenizer, prompts):
 
 def load(ckpt_dir, model_type):
     n_gpus = torch.cuda.device_count()
-
+    print(f"model_type = {model_type}")
     if model_type == 'llama':
         # we use tensor parallel for loading llama
         tokenizer = LlamaTokenizer.from_pretrained(ckpt_dir, use_fast=False, padding_side="left")
